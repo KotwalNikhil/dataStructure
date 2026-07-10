@@ -31,7 +31,7 @@ private:
 
         if(val < root->data)
             root->left = insertUtil(root->left, val);
-        else
+        else if(val > root->data) // This will not allow duplicate entry
             root->right = insertUtil(root->right, val);
         
         return root;
@@ -91,15 +91,27 @@ private:
     // For max go to the rightmost
     Node* miniUtil(Node* root)
     {
+        if(root == nullptr)
+            return nullptr;
+
         if(!root->left)return root;
         return miniUtil(root->left);
     }
 
-    void deleteNode(Node* root)
+    Node* maxiUtil(Node* root)
+    {
+        if(root == nullptr)
+            return nullptr;
+
+        if(!root->right)return root;
+        else return maxiUtil(root->right);
+    }
+
+    void deleteTree(Node* root)
     {
         if(!root) return;
-        if(root->left)deleteNode(root->left);
-        if(root->right)deleteNode(root->right);
+        deleteTree(root->left);
+        deleteTree(root->right);
         delete root;
     }
 
@@ -159,12 +171,61 @@ private:
         return pred;
     }
 
+    Node* deleteNode(Node* root, int key)
+    {
+        if(root == nullptr)
+            return nullptr;
+
+        if(root->data == key)
+        {
+            // if root is a leaf node
+            if(root->left == nullptr && root->right == nullptr)
+            {
+                delete root;
+                return nullptr;
+            }
+
+            // If root has a single child
+            else if(!root->left ^ !root->right)
+            {
+                Node* temp;
+                if(root->left)
+                {
+                    temp = root->left;
+                }
+                else 
+                {
+                    temp = root->right;
+                    
+                }
+                delete root;
+                return temp;
+            }
+
+            // if both childs are present then replace with either successor or predecessor
+            // find successor
+            Node* succ = successor(root, root->data);
+            root->data = succ->data;
+            root->right = deleteNode(root->right, succ->data);
+            return root;
+        }
+
+        if(key < root->data)
+        {
+            root->left = deleteNode(root->left, key);
+        }
+        else{
+            root->right = deleteNode(root->right, key);
+        }
+        return root;
+    }
+
 
 public:
     BST():root_(nullptr){}
     ~BST()
     {
-        deleteNode(root_);
+        deleteTree(root_);
     }
 
     void insert(int val)
@@ -202,9 +263,12 @@ public:
     Node* mini()
     {
         return miniUtil(root_);
-    }
+    } 
 
-    
+    void deletePublic(int key)
+    {
+        root_ = deleteNode(root_, key);
+    }
 };
 
 int main()
@@ -227,6 +291,12 @@ int main()
 
     Node* temp = tree.mini();
     cout<<temp->data<<endl;
+
+    tree.deletePublic(70);
+
+    cout<<endl;
+    tree.levelOrder();
+    cout<<endl;
     
     
     cout<<"hello";
