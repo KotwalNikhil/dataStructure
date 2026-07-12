@@ -1,4 +1,4 @@
-// Write your own string implementation in c++
+// Write your own AVL implementation in c++
 
 #include <iostream>
 #include <cstring>
@@ -10,7 +10,7 @@ struct Node
     int data;
     Node *left;
     Node* right;
-    int height;
+    int height; // height is added on BST node
 
     Node(int val):data(val), left(nullptr), right(nullptr), height(1)
     {}
@@ -91,7 +91,7 @@ private:
         return root;
     }
 
-    // Time complexity is O(logn) and O(n) in worst case (skewed tree)
+    // Time complexity is O(logn) and O(logn) in worst case too as tree is rotated to balance on each insert and delete
     Node* insertUtil(Node* root, int val)
     {
         if(!root)
@@ -110,7 +110,7 @@ private:
     }
 
 
-    // Time complexity is O(logn) and O(n) in worst case (skewed tree)
+    // Time complexity is O(logn) and O(logn) in worst case as AVL tree
     bool findUtil(Node* root, int val)
     {
         if(!root) return false;
@@ -243,12 +243,20 @@ private:
         return pred;
     }
 
+    // delete is updated to rotate and make tree balance on each delete
     Node* deleteNode(Node* root, int key)
     {
         if(root == nullptr)
             return nullptr;
 
-        if(root->data == key)
+        if(key < root->data)
+        {
+            root->left = deleteNode(root->left, key);
+        }
+        else if (key > root->data){
+            root->right = deleteNode(root->right, key);
+        }
+        else // root == key
         {
             // if root is a leaf node
             if(root->left == nullptr && root->right == nullptr)
@@ -279,17 +287,10 @@ private:
             Node* succ = successor(root, root->data);
             root->data = succ->data;
             root->right = deleteNode(root->right, succ->data);
-            return root;
         }
 
-        if(key < root->data)
-        {
-            root->left = deleteNode(root->left, key);
-        }
-        else{
-            root->right = deleteNode(root->right, key);
-        }
-        return root;
+        updateHeight(root);
+        return rotateIfNeed(root);
     }
 
 
@@ -343,7 +344,6 @@ public:
     }
 };
 
-// TODO: need to update delete as it needs the balance logic like insertUtil is done
 int main()
 {
     AVL tree;
