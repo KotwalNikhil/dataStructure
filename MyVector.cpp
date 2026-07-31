@@ -94,6 +94,19 @@ public:
         size_++;
     }
 
+    template<typename... Args>
+    void emplace_back(Args&&... args)
+    {
+        if(size_ == capacity_)
+            grow();
+
+        // use placement new operator
+        new(data_ + size_)
+            T(std::forward<Args>(args)...);
+
+        ++size_;
+    }
+
     void pop_back()
     {
         if (size_ > 0) size_--;
