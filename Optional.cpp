@@ -1,6 +1,7 @@
 // implement your own optional
 
 #include <string>
+#include <stdexcept>
 using namespace std;
 
 template <typename T>
@@ -17,7 +18,7 @@ class Optional
 
       |------double------| 
     */
-    alignas(T) unsigned char storage[sizeof(T)];
+    alignas(T) unsigned char storage[sizeof(T)]; // std::optional stores the object inside itself, without any heap allocation. thats why we didn't used void* or T storage
     bool has_value;
 public:
 
@@ -63,9 +64,14 @@ public:
         }
     }
 
-    T& value(); // can throw if has_value is false
-    bool hasvalue();
-    T& operator*();
+    T& value()
+    {
+        if(!has_value)throw std::runtime_error("bad optional access");
+        else return *ptr();
+    }
+
+    bool hasvalue() {return has_value;}
+    T& operator*() {return value();}
 };
 
 int main()
