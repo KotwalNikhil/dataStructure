@@ -35,11 +35,6 @@ public:
         delete[] data;
     }
 
-    size_t sizeFun() const
-    {
-        return size;
-    }
-
     const char* c_str() const
     {
         return data;
@@ -53,7 +48,7 @@ public:
 
     bool operator==(const MyString& obj) const
     {
-        if(size != obj.sizeFun())return false;
+        if(size != obj.size)return false;
         for(size_t i=0;i<size;++i)
         {
             if(data[i] != obj.at(i))return false;
@@ -65,27 +60,28 @@ public:
     //copy const
     MyString(const MyString& obj)
     {
-        data = new char[obj.sizeFun() + 1];
-        memcpy(data, obj.c_str(), obj.sizeFun()+1);
-        size = obj.sizeFun();
-        capacity = size;
+        size = obj.size;
+        capacity = obj.capacity;
+        data = new char[capacity + 1];
+        memcpy(data, obj.data, size + 1);
     }
 
 
     //copy assgn opr
     MyString& operator=(const MyString& obj)
     {
-        if (this == &obj)return *this;
+        if (this == &obj) return *this;
         delete[] data;
-        data = new char[obj.sizeFun() + 1];
-        memcpy(data, obj.c_str(), obj.sizeFun()+1);
-        size = obj.sizeFun();
-        capacity = size;
+        size = obj.size;
+        capacity = obj.capacity;
+        data = new char[capacity + 1];
+        memcpy(data, obj.data, size + 1);
         return *this;
     }
 
     //move const
-    MyString(MyString&& obj):data(obj.data), size(obj.size), capacity(size)
+    MyString(MyString&& obj) noexcept
+        : data(obj.data), size(obj.size), capacity(obj.capacity)
     {
         obj.data = nullptr;
         obj.size = 0;
@@ -93,14 +89,14 @@ public:
     }
 
     //move assgn opr
-    MyString& operator=(MyString&& obj)
+    MyString& operator=(MyString&& obj) noexcept
     {
-        if (this == &obj)return *this;
+        if (this == &obj) return *this;
         delete[] data;
 
         data = obj.data;
         size = obj.size;
-        capacity = size;
+        capacity = obj.capacity;
         obj.data = nullptr;
         obj.size = 0;
         obj.capacity = 0;
