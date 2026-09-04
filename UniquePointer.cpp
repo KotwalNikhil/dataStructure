@@ -50,10 +50,15 @@ public:
         return data;
     }
 
-    void reset(const T& ptr = nullptr)
+    // resets takes pointer to an object and not reference to an object
+    void reset(T* ptr = nullptr)
     {
-        delete data;
-        data = ptr;
+        if(data != ptr)
+        {
+            delete data;
+            data = ptr;
+        }
+        
     }
 };
 
